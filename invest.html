@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invest vs Buy | RE Research 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+.chart-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; margin-bottom: 2rem; }
+.chart-wrap h3 { font-family: var(--serif); font-size: 1.3rem; color: var(--text); margin-bottom: 0.4rem; }
+.chart-wrap .chart-sub { font-size: 0.78rem; color: var(--text2); margin-bottom: 1.5rem; }
+
+.winner-banner {
+  border-radius: 8px; padding: 1.5rem 2rem;
+  display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.winner-banner.buy { background: rgba(212,168,67,0.08); border: 1px solid var(--gold-dim); }
+.winner-banner.invest { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.3); }
+.winner-icon { font-size: 2.5rem; flex-shrink: 0; }
+.winner-title { font-family: var(--serif); font-size: 1.3rem; color: var(--text); margin-bottom: 0.3rem; }
+.winner-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.6; }
+
+.scenario-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+@media(max-width:700px){ .scenario-cards { grid-template-columns: 1fr; } }
+.scenario-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1.5rem;
+}
+.scenario-card h4 { font-family: var(--serif); font-size: 1.1rem; color: var(--text); margin-bottom: 1rem; }
+.scenario-card .big-num { font-family: var(--mono); font-size: 1.8rem; font-weight: 500; margin-bottom: 0.3rem; }
+.scenario-card .big-label { font-size: 0.72rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
+
+.legend-row { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; }
+.legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--text2); }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+.opp-cost-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 1rem; margin-bottom: 2rem; }
+.opp-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; }
+.opp-card .val { font-family: var(--mono); font-size: 1.6rem; font-weight: 500; margin-bottom: 0.3rem; }
+.opp-card .lbl { font-size: 0.72rem; color: var(--text2); }
+.opp-card .sub { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); margin-top: 0.4rem; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">▸ RE Research 2026</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="calculator.html">Calculator</a></li>
+      <li><a href="invest.html" class="active">Invest vs Buy</a></li>
+      <li><a href="markets.html">Markets</a></li>
+      <li><a href="kitchen.html">Cloud Kitchen</a></li>
+    </ul>
+    <button class="theme-toggle" onclick="toggleTheme()">◐ Theme</button>
+  </div>
+</nav>
+
+<main>
+<div class="page-header">
+  <div class="section-tag">03 · Wealth Comparison</div>
+  <h1>Invest vs<br><em>Buy Property</em></h1>
+  <p>If you skip buying and put the same money into SIP / index funds — which strategy builds more wealth over 10, 15, and 20 years? Full custom comparison with your real numbers.</p>
+  <a href="index.html" class="city-pill" id="cityPill">📍 Bangalore — click to change</a>
+</div>
+
+<!-- MAIN SIP VS BUY TOOL -->
+<section id="sip-compare">
+  <div class="section-tag">03A · Full Custom Comparison</div>
+  <h2 class="section-title">SIP vs EMI —<br>Same Money, Two Paths</h2>
+  <p class="section-desc">Both paths start with the same capital. Path A: Buy property with loan. Path B: Invest down payment + monthly SIP of same EMI amount in index funds. Where do you end up?</p>
+
+  <div class="calc-card">
+    <h3>Configure Your Scenario</h3>
+    <p>Adjust all parameters — the comparison updates live across 5, 10, 15, and 20-year horizons.</p>
+    <div class="calc-grid">
+      <div>
+        <div class="input-group">
+          <label>Property Value</label>
+          <input type="range" id="propVal" min="2000000" max="30000000" step="500000" value="5500000" oninput="runCompare()">
+          <div class="val-display" id="propValOut">₹55L</div>
+        </div>
+        <div class="input-group">
+          <label>Down Payment</label>
+          <input type="range" id="dpVal" min="500000" max="10000000" step="100000" value="1000000" oninput="runCompare()">
+          <div class="val-display" id="dpValOut">₹10L</div>
+        </div>
+        <div class="input-group">
+          <label>Current Monthly Rent</label>
+          <input type="range" id="rentVal" min="5000" max="100000" step="1000" value="30000" oninput="runCompare()">
+          <div class="val-display" id="rentValOut">₹30,000/mo</div>
+        </div>
+        <div class="input-group">
+          <label>Loan Tenure (years)</label>
+          <input type="range" id="tenureVal" min="5" max="30" step="1" value="15" oninput="runCompare()">
+          <div class="val-display" id="tenureValOut">15 years</div>
+        </div>
+        <div class="input-group">
+          <label>Loan Interest Rate: <span id="loanRateOut">8.5%</span></label>
+          <input type="range" id="loanRateVal" min="7" max="14" step="0.25" value="8.5" oninput="runCompare()">
+        </div>
+        <div class="input-group">
+          <label>Property Appreciation (% p.a.): <span id="appRateOut">8%</span></label>
+          <input type="range" id="appRateVal" min="3" max="15" step="0.5" value="8" oninput="runCompare()">
+        </div>
+        <div class="input-group">
+          <label>SIP / Market Return (% p.a.): <span id="sipRateOut">12%</span></label>
+          <input type="range" id="sipRateVal" min="8" max="18" step="0.5" value="12" oninput="runCompare()">
+        </div>
+        <div class="input-group">
+          <label>Rent Growth Rate (% p.a.): <span id="rentGrowthOut">8%</span></label>
+          <input type="range" id="rentGrowthVal" min="3" max="15" step="1" value="8" oninput="runCompare()">
+        </div>
+      </div>
+
+      <div>
+        <div id="winnerBanner" class="winner-banner"></div>
+        <div class="results-box">
+          <div class="result-row"><span class="result-label">Monthly EMI (buy path)</span><span class="result-val bad" id="i-emi">—</span></div>
+          <div class="result-row"><span class="result-label">Current Rent (invest path)</span><span class="result-val good" id="i-rent">—</span></div>
+          <div class="result-row"><span class="result-label">Monthly delta (EMI − Rent)</span><span class="result-val" id="i-delta">—</span></div>
+          <div class="result-row"><span class="result-label">SIP amount (rent + delta invested)</span><span class="result-val warn" id="i-sip">—</span></div>
+          <div class="result-row" style="border-top:2px solid var(--border);padding-top:0.8rem;margin-top:0.3rem;">
+            <span class="result-label" style="font-weight:500;color:var(--text)">10-Yr: Buy — Net Property Equity</span>
+            <span class="result-val warn" id="i-buy10">—</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label" style="font-weight:500;color:var(--text)">10-Yr: Invest — Portfolio Value</span>
+            <span class="result-val good" id="i-inv10">—</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label" style="font-weight:500;color:var(--text)">20-Yr: Buy — Net Property Equity</span>
+            <span class="result-val warn" id="i-buy20">—</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label" style="font-weight:500;color:var(--text)">20-Yr: Invest — Portfolio Value</span>
+            <span class="result-val good" id="i-inv20">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEALTH GROWTH CHART -->
+  <div class="chart-wrap">
+    <h3>Wealth Trajectory — Buy vs Invest</h3>
+    <p class="chart-sub">Property equity (gold) vs investment portfolio (green) over 20 years. Cross-over point shows when one strategy overtakes the other.</p>
+    <div style="position:relative;height:340px;">
+      <canvas id="wealthChart" role="img" aria-label="Line chart comparing property equity vs SIP portfolio value over 20 years">Wealth comparison chart</canvas>
+    </div>
+    <div class="legend-row">
+      <div class="legend-item"><div class="legend-dot" style="background:#d4a843"></div> Property Net Equity (after outstanding loan)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div> SIP Portfolio (down payment + monthly delta invested)</div>
+    </div>
+  </div>
+
+  <!-- SCENARIO BREAKDOWN -->
+  <div id="scenarioCards" class="scenario-cards"></div>
+</section>
+
+<!-- OPPORTUNITY COST -->
+<section id="opportunity">
+  <div class="section-tag">03B · Opportunity Cost</div>
+  <h2 class="section-title">What Your Down Payment<br>Would Earn Instead</h2>
+  <p class="section-desc">The ₹10–30L locked into a down payment is dead capital for decades. If deployed in index funds at 11–12% CAGR, the compounding difference is staggering.</p>
+
+  <div class="calc-card">
+    <div class="calc-grid">
+      <div>
+        <div class="input-group">
+          <label>Capital (Down Payment / Savings)</label>
+          <input type="range" id="ocCapital" min="500000" max="8000000" step="100000" value="1500000" oninput="calcOC()">
+          <div class="val-display" id="ocCapDisplay">₹15L</div>
+        </div>
+        <div class="input-group">
+          <label>Equity CAGR: <span id="ocCagrDisplay">12%</span></label>
+          <input type="range" id="ocCagr" min="8" max="18" step="0.5" value="12" oninput="calcOC()">
+        </div>
+        <div class="input-group">
+          <label>Property Appreciation: <span id="ocAppDisplay">8%</span></label>
+          <input type="range" id="ocApp" min="3" max="15" step="0.5" value="8" oninput="calcOC()">
+        </div>
+      </div>
+      <div>
+        <div class="opp-cost-grid">
+          <div class="opp-card"><div class="val good" id="oc-eq5">—</div><div class="lbl">Equity — 5 Years</div></div>
+          <div class="opp-card"><div class="val good" id="oc-eq10">—</div><div class="lbl">Equity — 10 Years</div></div>
+          <div class="opp-card"><div class="val good" id="oc-eq15">—</div><div class="lbl">Equity — 15 Years</div></div>
+          <div class="opp-card"><div class="val warn" id="oc-prop10">—</div><div class="lbl">RE Gain — 10 Years</div></div>
+        </div>
+        <div class="results-box">
+          <div class="result-row"><span class="result-label">Liquidity — Equity</span><span class="result-val good">Can sell any day</span></div>
+          <div class="result-row"><span class="result-label">Liquidity — Property</span><span class="result-val bad">Locked 10–20 yrs</span></div>
+          <div class="result-row"><span class="result-label">Wealth Gap (10 Yrs)</span><span class="result-val" id="oc-gap">—</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="position:relative;height:280px;margin-top:2rem;">
+      <canvas id="ocChart" role="img" aria-label="Line chart comparing equity CAGR vs property appreciation over 15 years">Opportunity cost comparison</canvas>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">RE Research 2026</div>
+        <p class="footer-tagline">Research & informational use only. Not financial advice.</p>
+        <div class="social-row">
+          <a href="https://github.com/dheeraj5988/" target="_blank" class="social-btn">⌥ GitHub</a>
+          <a href="https://www.linkedin.com/in/dheeraj5988/" target="_blank" class="social-btn">↗ LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h5>Pages</h5>
+        <a href="index.html">Home</a>
+        <a href="calculator.html">EMI Calculator</a>
+        <a href="invest.html">Invest vs Buy</a>
+        <a href="markets.html">Markets</a>
+        <a href="kitchen.html">Cloud Kitchen</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Dheeraj · RE Research</div>
+      <div class="footer-note">Not financial advice.</div>
+    </div>
+  </div>
+</footer>
+
+<script src="citydata.js"></script>
+<script src="shared.js"></script>
+<script>
+const cd = getCityData();
+document.getElementById('cityPill').textContent = '📍 ' + cd.name + ' — click to change';
+document.getElementById('cityPill').href = 'index.html';
+document.getElementById('appRateVal').value = cd.appreciation;
+document.getElementById('appRateOut').textContent = cd.appreciation + '%';
+document.getElementById('loanRateVal').value = cd.loanRate;
+document.getElementById('loanRateOut').textContent = cd.loanRate + '%';
+document.getElementById('rentVal').value = cd.avgRent2BHK;
+document.getElementById('rentValOut').textContent = fmt(cd.avgRent2BHK) + '/mo';
+document.getElementById('propVal').value = cd.avgFlat2BHK;
+document.getElementById('propValOut').textContent = fmtCr(cd.avgFlat2BHK);
+
+let wealthChart, ocChart;
+
+function getOutstandingAfterYears(loan, rate, emiAmt, years) {
+  let bal = loan;
+  const mr = rate / 12 / 100;
+  for (let i = 0; i < years * 12; i++) {
+    const ip = bal * mr;
+    const pp = emiAmt - ip;
+    bal -= pp;
+    if (bal <= 0) return 0;
+  }
+  return Math.max(0, bal);
+}
+
+function runCompare() {
+  const propVal = +document.getElementById('propVal').value;
+  const dp = +document.getElementById('dpVal').value;
+  const rent = +document.getElementById('rentVal').value;
+  const tenure = +document.getElementById('tenureVal').value;
+  const loanRate = +document.getElementById('loanRateVal').value;
+  const appRate = +document.getElementById('appRateVal').value;
+  const sipRate = +document.getElementById('sipRateVal').value;
+  const rentGrowth = +document.getElementById('rentGrowthVal').value;
+
+  document.getElementById('propValOut').textContent = fmtCr(propVal);
+  document.getElementById('dpValOut').textContent = fmtCr(dp);
+  document.getElementById('rentValOut').textContent = fmt(rent) + '/mo';
+  document.getElementById('tenureValOut').textContent = tenure + ' years';
+  document.getElementById('loanRateOut').textContent = loanRate + '%';
+  document.getElementById('appRateOut').textContent = appRate + '%';
+  document.getElementById('sipRateOut').textContent = sipRate + '%';
+  document.getElementById('rentGrowthOut').textContent = rentGrowth + '%';
+
+  const loan = propVal - dp;
+  const emi = calcEMI(loan, loanRate, tenure * 12);
+  const delta = Math.max(0, emi - rent);
+  const sipAmt = rent + delta; // invest same as emi
+
+  document.getElementById('i-emi').textContent = fmt(emi) + '/mo';
+  document.getElementById('i-rent').textContent = fmt(rent) + '/mo';
+  document.getElementById('i-delta').textContent = fmt(delta) + '/mo';
+  document.getElementById('i-sip').textContent = fmt(sipAmt) + '/mo (= EMI)';
+
+  // --- Year-by-year data ---
+  const maxYr = 20;
+  const buyEquity = [], investPortfolio = [], years = [];
+
+  for (let yr = 1; yr <= maxYr; yr++) {
+    // BUY PATH: property value - outstanding loan
+    const propValAtYr = fv(propVal, appRate, yr);
+    const outstandingAtYr = getOutstandingAfterYears(loan, loanRate, emi, Math.min(yr, tenure));
+    buyEquity.push(Math.round(propValAtYr - outstandingAtYr));
+
+    // INVEST PATH: lump sum dp + monthly sip of emi amount
+    const dpGrown = fv(dp, sipRate, yr);
+    // SIP = investing emi amount monthly (same as what you'd pay in emi)
+    // But you also save rent saving: you don't pay extra vs EMI — you invest EMI amount
+    // Minus: you still pay rent from your pocket. Net invest = emi amount to SIP, pay rent separately
+    const sipCorpus = sipFV(emi, sipRate, yr * 12);
+    // But we subtract total rent paid (cumulative rent grows each year)
+    // Net wealth = SIP corpus + dp grown - no deduction (rent is unavoidable either way)
+    investPortfolio.push(Math.round(dpGrown + sipCorpus));
+    years.push('Yr ' + yr);
+  }
+
+  const buy10 = buyEquity[9], inv10 = investPortfolio[9];
+  const buy20 = buyEquity[19], inv20 = investPortfolio[19];
+
+  document.getElementById('i-buy10').textContent = fmtCr(buy10);
+  document.getElementById('i-inv10').textContent = fmtCr(inv10);
+  document.getElementById('i-buy20').textContent = fmtCr(buy20);
+  document.getElementById('i-inv20').textContent = fmtCr(inv20);
+
+  // Winner banner
+  const winner10 = inv10 > buy10 ? 'invest' : 'buy';
+  const banner = document.getElementById('winnerBanner');
+  if (winner10 === 'invest') {
+    banner.className = 'winner-banner invest';
+    banner.innerHTML = `<div class="winner-icon">📈</div><div><div class="winner-title">Investing wins at 10 years</div><div class="winner-desc">SIP portfolio leads by <strong>${fmtCr(inv10 - buy10)}</strong> at year 10. Property needs longer holding period to catch up due to interest front-loading and illiquidity.</div></div>`;
+  } else {
+    banner.className = 'winner-banner buy';
+    banner.innerHTML = `<div class="winner-icon">🏠</div><div><div class="winner-title">Property wins at 10 years</div><div class="winner-desc">Property equity leads by <strong>${fmtCr(buy10 - inv10)}</strong> at year 10. High appreciation assumption is doing the heavy lifting here.</div></div>`;
+  }
+
+  // Scenario summary cards
+  document.getElementById('scenarioCards').innerHTML = `
+    <div class="scenario-card">
+      <h4>🏠 Buy Path — 10 Years</h4>
+      <div class="big-num warn">${fmtCr(buy10)}</div>
+      <div class="big-label">Net Property Equity</div>
+      <div style="margin-top:1rem;font-size:0.78rem;color:var(--text2);line-height:1.7;">
+        Property value: <strong>${fmtCr(fv(propVal, appRate, 10))}</strong><br>
+        Outstanding loan: <strong>${fmtCr(getOutstandingAfterYears(loan, loanRate, emi, Math.min(10, tenure)))}</strong><br>
+        Total EMI paid: <strong>${fmtCr(emi * Math.min(120, tenure * 12))}</strong><br>
+        Interest paid (10 yr): ~<strong>${fmtCr(emi * 120 - Math.min(loan, emi*120 - getOutstandingAfterYears(loan,loanRate,emi,10) ))}</strong>
+      </div>
+    </div>
+    <div class="scenario-card">
+      <h4>📈 Invest Path — 10 Years</h4>
+      <div class="big-num good">${fmtCr(inv10)}</div>
+      <div class="big-label">Total Portfolio Value</div>
+      <div style="margin-top:1rem;font-size:0.78rem;color:var(--text2);line-height:1.7;">
+        Down payment grown: <strong>${fmtCr(fv(dp, sipRate, 10))}</strong><br>
+        SIP corpus (${fmt(emi)}/mo): <strong>${fmtCr(sipFV(emi, sipRate, 120))}</strong><br>
+        Total invested: <strong>${fmtCr(dp + emi * 120)}</strong><br>
+        Liquidity: <span style="color:var(--green)">Fully liquid, can redeem anytime</span>
+      </div>
+    </div>
+    <div class="scenario-card">
+      <h4>🏠 Buy Path — 20 Years</h4>
+      <div class="big-num warn">${fmtCr(buy20)}</div>
+      <div class="big-label">Net Property Equity</div>
+      <div style="margin-top:1rem;font-size:0.78rem;color:var(--text2);line-height:1.7;">
+        Property value: <strong>${fmtCr(fv(propVal, appRate, 20))}</strong><br>
+        Outstanding loan: <strong>${fmtCr(getOutstandingAfterYears(loan, loanRate, emi, Math.min(20, tenure)))}</strong><br>
+        Total EMI paid: <strong>${fmtCr(emi * Math.min(240, tenure * 12))}</strong>
+      </div>
+    </div>
+    <div class="scenario-card">
+      <h4>📈 Invest Path — 20 Years</h4>
+      <div class="big-num good">${fmtCr(inv20)}</div>
+      <div class="big-label">Total Portfolio Value</div>
+      <div style="margin-top:1rem;font-size:0.78rem;color:var(--text2);line-height:1.7;">
+        Down payment grown: <strong>${fmtCr(fv(dp, sipRate, 20))}</strong><br>
+        SIP corpus (${fmt(emi)}/mo): <strong>${fmtCr(sipFV(emi, sipRate, 240))}</strong><br>
+        Total invested: <strong>${fmtCr(dp + emi * 240)}</strong><br>
+        Liquidity: <span style="color:var(--green)">Fully liquid</span>
+      </div>
+    </div>
+  `;
+
+  // CHART
+  if (wealthChart) wealthChart.destroy();
+  wealthChart = new Chart(document.getElementById('wealthChart'), {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: [
+        { label: 'Property Net Equity', data: buyEquity, borderColor: '#d4a843', backgroundColor: 'rgba(212,168,67,0.08)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
+        { label: 'SIP Portfolio', data: investPortfolio, borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.08)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { ticks: { callback: v => fmtCr(v), color: '#8b92a3', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        x: { ticks: { color: '#8b92a3', font: { size: 11 } }, grid: { display: false } }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a3', font: { family: 'DM Mono', size: 11 }, usePointStyle: true } },
+        tooltip: { backgroundColor: 'rgba(10,12,16,0.95)', titleColor: '#e8eaf0', bodyColor: '#8b92a3', callbacks: { label: c => c.dataset.label + ': ' + fmtCr(c.raw) } }
+      }
+    }
+  });
+}
+
+// ─── OPPORTUNITY COST ───
+function calcOC() {
+  const capital = +document.getElementById('ocCapital').value;
+  const cagr = +document.getElementById('ocCagr').value;
+  const app = +document.getElementById('ocApp').value;
+
+  document.getElementById('ocCapDisplay').textContent = fmtCr(capital);
+  document.getElementById('ocCagrDisplay').textContent = cagr + '%';
+  document.getElementById('ocAppDisplay').textContent = app + '%';
+
+  const eq5 = fv(capital, cagr, 5);
+  const eq10 = fv(capital, cagr, 10);
+  const eq15 = fv(capital, cagr, 15);
+  const prop10 = fv(capital, app, 10);
+  const gap = eq10 - prop10;
+
+  document.getElementById('oc-eq5').textContent = fmtCr(eq5);
+  document.getElementById('oc-eq10').textContent = fmtCr(eq10);
+  document.getElementById('oc-eq15').textContent = fmtCr(eq15);
+  document.getElementById('oc-prop10').textContent = fmtCr(prop10);
+  document.getElementById('oc-gap').textContent = fmtCr(Math.abs(gap)) + (gap > 0 ? ' more in equity' : ' more in RE');
+  document.getElementById('oc-gap').className = 'result-val ' + (gap > 0 ? 'good' : 'warn');
+
+  const labels = Array.from({length: 16}, (_, i) => i);
+  const eqData = labels.map(y => Math.round(fv(capital, cagr, y)));
+  const reData = labels.map(y => Math.round(fv(capital, app, y)));
+
+  if (ocChart) ocChart.destroy();
+  ocChart = new Chart(document.getElementById('ocChart'), {
+    type: 'line',
+    data: {
+      labels: labels.map(y => 'Yr ' + y),
+      datasets: [
+        { label: 'Equity @ ' + cagr + '% CAGR', data: eqData, borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.05)', fill: true, tension: 0.4, pointRadius: 0 },
+        { label: 'RE Capital Gain @ ' + app + '%', data: reData, borderColor: '#d4a843', backgroundColor: 'rgba(212,168,67,0.05)', fill: true, tension: 0.4, pointRadius: 0 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { ticks: { callback: v => fmtCr(v), color: '#8b92a3', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        x: { ticks: { color: '#8b92a3', font: { size: 11 } }, grid: { display: false } }
+      },
+      plugins: { legend: { labels: { color: '#8b92a3', font: { family: 'DM Mono', size: 11 } } }, tooltip: { backgroundColor: 'rgba(10,12,16,0.95)', titleColor: '#e8eaf0', bodyColor: '#8b92a3', callbacks: { label: c => c.dataset.label + ': ' + fmtCr(c.raw) } } }
+    }
+  });
+}
+
+runCompare();
+calcOC();
+</script>
+</body>
+</html>

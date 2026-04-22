@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RE Research 2026 | India Real Estate Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ─── HOME SPECIFIC ─── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 80px;
+  position: relative;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--teal);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid var(--teal-dim);
+  padding: 0.35rem 0.9rem;
+  border-radius: 2px;
+  margin-bottom: 2.5rem;
+  width: fit-content;
+}
+.hero-badge::before { content: '●'; font-size: 0.5rem; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  line-height: 1.05;
+  color: var(--text);
+  margin-bottom: 1rem;
+  max-width: 800px;
+}
+.hero h1 em { font-style: italic; color: var(--gold); }
+.hero-sub {
+  font-size: 1rem;
+  color: var(--text2);
+  max-width: 580px;
+  margin-bottom: 3rem;
+  font-weight: 300;
+  line-height: 1.7;
+}
+.hero-meta { display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; }
+.author-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+}
+.author-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--teal));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif); font-size: 1.3rem; color: #000; font-weight: bold;
+}
+.author-name { font-family: var(--mono); font-size: 0.85rem; color: var(--text); font-weight: 500; }
+.author-title { font-size: 0.75rem; color: var(--text2); margin-top: 0.1rem; }
+.author-links { display: flex; gap: 0.6rem; margin-top: 0.5rem; }
+.author-links a {
+  font-family: var(--mono); font-size: 0.68rem; color: var(--text3);
+  text-decoration: none; border: 1px solid var(--border);
+  padding: 0.15rem 0.5rem; border-radius: 3px; transition: all 0.2s;
+}
+.author-links a:hover { color: var(--gold); border-color: var(--gold-dim); }
+.hero-stats { display: flex; gap: 2.5rem; }
+.hero-stat-val { font-family: var(--mono); font-size: 1.6rem; color: var(--gold); font-weight: 500; }
+.hero-stat-label { font-size: 0.72rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; }
+.scroll-hint {
+  position: absolute; bottom: 2rem; left: 0;
+  font-family: var(--mono); font-size: 0.65rem; color: var(--text3);
+  letter-spacing: 0.15em; display: flex; align-items: center; gap: 0.5rem;
+}
+.scroll-hint::after { content: ''; display: block; width: 40px; height: 1px; background: var(--text3); }
+
+/* city selector */
+.city-selector-wrap {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 2rem; margin-bottom: 3rem;
+}
+.city-selector-wrap h3 {
+  font-family: var(--serif); font-size: 1.3rem; color: var(--text); margin-bottom: 0.4rem;
+}
+.city-selector-wrap p { font-size: 0.82rem; color: var(--text2); margin-bottom: 1.5rem; }
+.city-grid {
+  display: flex; flex-wrap: wrap; gap: 0.6rem;
+}
+.city-btn {
+  font-family: var(--mono); font-size: 0.72rem;
+  padding: 0.5rem 1rem; border: 1px solid var(--border);
+  background: var(--bg); color: var(--text2);
+  border-radius: 4px; cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.city-btn:hover { color: var(--gold); border-color: var(--gold-dim); }
+.city-btn.active { background: rgba(212,168,67,0.1); border-color: var(--gold); color: var(--gold); }
+.city-badge {
+  display: inline-block; font-size: 0.6rem; padding: 1px 5px;
+  border-radius: 3px; margin-left: 4px; vertical-align: middle;
+}
+.city-badge.tier1 { background: rgba(248,113,113,0.15); color: #f87171; }
+.city-badge.tier2 { background: rgba(45,212,191,0.15); color: #2dd4bf; }
+
+/* city data display */
+.city-data-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; margin-bottom: 3rem;
+}
+.city-data-card { background: var(--bg2); padding: 1.8rem; }
+.city-data-val { font-family: var(--mono); font-size: 1.8rem; color: var(--gold); font-weight: 500; line-height: 1; margin-bottom: 0.3rem; }
+.city-data-label { font-size: 0.78rem; color: var(--text2); line-height: 1.4; }
+.city-data-sub { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); margin-top: 0.5rem; }
+
+/* page nav cards */
+.page-nav-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem; margin-top: 3rem;
+}
+.page-nav-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1.8rem;
+  text-decoration: none; transition: all 0.2s; display: block;
+  position: relative; overflow: hidden;
+}
+.page-nav-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--card-accent, var(--gold));
+}
+.page-nav-card:hover { border-color: var(--card-accent, var(--gold-dim)); transform: translateY(-2px); }
+.page-nav-card .card-icon { font-size: 1.5rem; margin-bottom: 1rem; }
+.page-nav-card .card-title { font-family: var(--serif); font-size: 1.2rem; color: var(--text); margin-bottom: 0.5rem; }
+.page-nav-card .card-desc { font-size: 0.78rem; color: var(--text2); line-height: 1.6; }
+.page-nav-card .card-cta {
+  font-family: var(--mono); font-size: 0.68rem; color: var(--card-accent, var(--gold));
+  text-transform: uppercase; letter-spacing: 0.1em; margin-top: 1rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+
+/* charts */
+.chart-wrap {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 2rem; margin-bottom: 2rem;
+}
+.chart-wrap h3 { font-family: var(--serif); font-size: 1.3rem; color: var(--text); margin-bottom: 0.4rem; }
+.chart-wrap .chart-sub { font-size: 0.78rem; color: var(--text2); margin-bottom: 1.5rem; }
+.chart-wrap canvas { max-height: 340px; }
+
+/* checklist */
+.checklist { list-style: none; }
+.checklist li { display: flex; gap: 1rem; padding: 1.2rem 0; border-bottom: 1px solid var(--border); }
+.checklist li:last-child { border-bottom: none; }
+.check-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
+.check-title { font-family: var(--mono); font-size: 0.8rem; color: var(--text); margin-bottom: 0.3rem; }
+.check-desc { font-size: 0.78rem; color: var(--text2); line-height: 1.6; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+@media(max-width:800px){ .two-col { grid-template-columns: 1fr; } }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.hero > * { animation: fadeUp 0.6s ease both; }
+.hero > *:nth-child(1){animation-delay:0.1s}
+.hero > *:nth-child(2){animation-delay:0.2s}
+.hero > *:nth-child(3){animation-delay:0.3s}
+.hero > *:nth-child(4){animation-delay:0.4s}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">▸ RE Research 2026</a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="calculator.html">Calculator</a></li>
+      <li><a href="invest.html">Invest vs Buy</a></li>
+      <li><a href="markets.html">Markets</a></li>
+      <li><a href="kitchen.html">Cloud Kitchen</a></li>
+    </ul>
+    <button class="theme-toggle" onclick="toggleTheme()">◐ Theme</button>
+  </div>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="hero-badge">India Real Estate Intelligence · 2026</div>
+  <h1>Real Estate &<br><em>Investment Strategy</em><br>India</h1>
+  <p class="hero-sub">A data-driven research tool for residential acquisition, loan mathematics, rental yield dynamics, and investment comparison — built for Indian cities in 2026.</p>
+  <div class="hero-meta">
+    <div class="author-card">
+      <div class="author-avatar">D</div>
+      <div>
+        <div class="author-name">Dheeraj</div>
+        <div class="author-title">Developer & Researcher</div>
+        <div class="author-links">
+          <a href="https://github.com/dheeraj5988/" target="_blank">⌥ GitHub</a>
+          <a href="https://www.linkedin.com/in/dheeraj5988/" target="_blank">↗ LinkedIn</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val">14</div>
+        <div class="hero-stat-label">Cities</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">6</div>
+        <div class="hero-stat-label">Calculators</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">2026</div>
+        <div class="hero-stat-label">Market Data</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">SCROLL TO EXPLORE</div>
+</div>
+
+<!-- CITY SELECTOR -->
+<section id="context">
+  <div class="section-tag">01 · Select Your City</div>
+  <h2 class="section-title">Choose a City —<br>All Data Updates</h2>
+  <p class="section-desc">Select your target city. All calculators, yield figures, stamp duty rates, and market data across this tool will update to reflect that city's current market conditions.</p>
+
+  <div class="city-selector-wrap">
+    <h3>Select City</h3>
+    <p>Click to switch — data updates instantly across all sections.</p>
+    <div class="city-grid" id="cityGrid"></div>
+  </div>
+
+  <div class="city-data-grid" id="cityDataGrid"></div>
+
+  <!-- Yield comparison chart -->
+  <div class="chart-wrap">
+    <h3>Rental Yield by City — 2026</h3>
+    <p class="chart-sub">Gross rental yield range for well-maintained 2BHK residential assets. Your selected city is highlighted.</p>
+    <div style="position:relative;height:320px;">
+      <canvas id="yieldChart" role="img" aria-label="Bar chart of rental yield percentages across Indian cities">Rental yield comparison chart for Indian cities</canvas>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK NAVIGATE -->
+<section id="navigate">
+  <div class="section-tag">02 · Tools</div>
+  <h2 class="section-title">What Do You<br>Want to Analyse?</h2>
+  <p class="section-desc">Jump directly to the tool that answers your question.</p>
+
+  <div class="page-nav-grid">
+    <a href="calculator.html" class="page-nav-card" style="--card-accent:#f87171;">
+      <div class="card-icon">🏦</div>
+      <div class="card-title">EMI & LTV Calculator</div>
+      <div class="card-desc">How much cash do you actually need? RBI LTV rules, true day-1 cost, EMI breakdown, rent vs buy gap.</div>
+      <div class="card-cta">Open Calculator →</div>
+    </a>
+    <a href="invest.html" class="page-nav-card" style="--card-accent:#4ade80;">
+      <div class="card-icon">📈</div>
+      <div class="card-title">Invest vs Buy</div>
+      <div class="card-desc">If you skip buying and put the same money in SIP/index funds — which builds more wealth over 10–20 years?</div>
+      <div class="card-cta">Compare Now →</div>
+    </a>
+    <a href="markets.html" class="page-nav-card" style="--card-accent:#a78bfa;">
+      <div class="card-icon">🗺</div>
+      <div class="card-title">Micro-Market Analysis</div>
+      <div class="card-desc">Zone-by-zone rental yield heatmap and appreciation data. Find where the yield is actually worth it.</div>
+      <div class="card-cta">Explore Markets →</div>
+    </a>
+    <a href="kitchen.html" class="page-nav-card" style="--card-accent:#fb923c;">
+      <div class="card-icon">🍳</div>
+      <div class="card-title">Cloud Kitchen P&L</div>
+      <div class="card-desc">Should you buy or lease commercial space for a cloud kitchen? Full P&L simulator with aggregator math.</div>
+      <div class="card-cta">Run Simulation →</div>
+    </a>
+  </div>
+</section>
+
+<!-- PRE-BUY CHECKLIST -->
+<section id="checklist">
+  <div class="section-tag">03 · Before You Sign</div>
+  <h2 class="section-title">Strategic<br>Pre-Buy Checklist</h2>
+  <p class="section-desc">Non-negotiable filters before deploying capital into Indian real estate.</p>
+  <div class="two-col">
+    <ul class="checklist">
+      <li>
+        <div class="check-icon">₹</div>
+        <div><div class="check-title">30–40% Capital Reserve</div><div class="check-desc">Have at least 30–40% of property value in liquid savings — covering down payment, stamp duty, interior fit-outs, and a 6-month EMI emergency buffer. Never enter leveraged at 5–10% equity.</div></div>
+      </li>
+      <li>
+        <div class="check-icon">⚖</div>
+        <div><div class="check-title">A-Khata + Occupancy Certificate</div><div class="check-desc">Verify municipal A-Khata status and valid OC/CC. B-Khata properties lose access to Tier-1 bank loans, face resale illiquidity, and carry demolition risk.</div></div>
+      </li>
+      <li>
+        <div class="check-icon">📋</div>
+        <div><div class="check-title">RERA Registration Verified</div><div class="check-desc">For under-construction properties, confirm RERA registration on the state portal. This protects against builder default and delivery delays.</div></div>
+      </li>
+      <li>
+        <div class="check-icon">🏦</div>
+        <div><div class="check-title">White Transactions Only</div><div class="check-desc">Never engage in cash-component deals. Sellers asking for "black" reduce paper value, limiting future resale price and LTV for refinancing.</div></div>
+      </li>
+    </ul>
+    <ul class="checklist">
+      <li>
+        <div class="check-icon">📈</div>
+        <div><div class="check-title">EMI ≤ 35% of Net Take-Home</div><div class="check-desc">Banks enforce this, but also enforce it personally. An EMI consuming 50–60% of salary leaves no buffer for market downturns or job changes.</div></div>
+      </li>
+      <li>
+        <div class="check-icon">🌐</div>
+        <div><div class="check-title">Growth Corridor Targeting</div><div class="check-desc">Prefer tech-belt and infrastructure-growth corridors over central CBD. Better yields, higher appreciation, newer stock.</div></div>
+      </li>
+      <li>
+        <div class="check-icon">🚫</div>
+        <div><div class="check-title">No Personal Loans for Down Payment</div><div class="check-desc">Funding the down payment via personal/NBFC loans spikes your DTI ratio, causing the primary mortgage to be rejected during bank underwriting.</div></div>
+      </li>
+      <li>
+        <div class="check-icon">⏳</div>
+        <div><div class="check-title">10+ Year Holding Horizon</div><div class="check-desc">Real estate outperforms renting + investing only beyond a 10–12 year holding period in above-average appreciation markets. Short-horizon buyers rarely recoup transaction costs.</div></div>
+      </li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">RE Research 2026</div>
+        <p class="footer-tagline">A personal research project analyzing Indian real estate investment decisions — built as an interactive decision tool with real market data and RBI regulatory constraints.</p>
+        <div class="social-row">
+          <a href="https://github.com/dheeraj5988/" target="_blank" class="social-btn">⌥ GitHub Profile</a>
+          <a href="https://www.linkedin.com/in/dheeraj5988/" target="_blank" class="social-btn">↗ LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h5>Pages</h5>
+        <a href="index.html">Home</a>
+        <a href="calculator.html">EMI Calculator</a>
+        <a href="invest.html">Invest vs Buy</a>
+        <a href="markets.html">Markets</a>
+        <a href="kitchen.html">Cloud Kitchen</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Dheeraj · RE Research</div>
+      <div class="footer-note">Research & informational use only. Not financial advice.</div>
+    </div>
+  </div>
+</footer>
+
+<script src="citydata.js"></script>
+<script src="shared.js"></script>
+<script>
+let yieldChart;
+
+function renderCityGrid() {
+  const grid = document.getElementById('cityGrid');
+  grid.innerHTML = '';
+  CITIES.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'city-btn' + (c.id === getCity() ? ' active' : '');
+    btn.innerHTML = c.name + `<span class="city-badge ${c.tier === 1 ? 'tier1' : 'tier2'}">${c.tier === 1 ? 'Metro' : 'T2'}</span>`;
+    btn.onclick = () => { setCity(c.id); renderAll(); };
+    grid.appendChild(btn);
+  });
+}
+
+function renderCityData() {
+  const c = getCityData();
+  document.getElementById('cityDataGrid').innerHTML = `
+    <div class="city-data-card"><div class="city-data-val">${c.avgPriceSqft}</div><div class="city-data-label">Avg. Price/sqft</div><div class="city-data-sub">2026 market rate</div></div>
+    <div class="city-data-card"><div class="city-data-val">${c.yieldRange}</div><div class="city-data-label">Rental Yield Range</div><div class="city-data-sub">Gross, 2BHK residential</div></div>
+    <div class="city-data-card"><div class="city-data-val">${c.stampDuty}%</div><div class="city-data-label">Stamp Duty</div><div class="city-data-sub">Registration extra</div></div>
+    <div class="city-data-card"><div class="city-data-val">${c.loanRate}%</div><div class="city-data-label">Avg Home Loan Rate</div><div class="city-data-sub">Leading banks, 2026</div></div>
+    <div class="city-data-card"><div class="city-data-val">${c.appreciation}%</div><div class="city-data-label">Annual Appreciation</div><div class="city-data-sub">Historical avg, growth zones</div></div>
+    <div class="city-data-card"><div class="city-data-val">${c.demandLevel}</div><div class="city-data-label">Rental Demand</div><div class="city-data-sub">${c.demandNote}</div></div>
+  `;
+}
+
+function renderYieldChart() {
+  const selected = getCity();
+  const labels = CITIES.map(c => c.name);
+  const yieldMid = CITIES.map(c => parseFloat(c.yieldMid));
+  const colors = CITIES.map(c => c.id === selected ? '#d4a843' : (c.yieldMid >= 4 ? 'rgba(74,222,128,0.6)' : c.yieldMid >= 3 ? 'rgba(251,191,36,0.6)' : 'rgba(248,113,113,0.6)'));
+
+  if (yieldChart) yieldChart.destroy();
+  yieldChart = new Chart(document.getElementById('yieldChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Rental Yield %',
+        data: yieldMid,
+        backgroundColor: colors,
+        borderRadius: 4,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.dataset.label + ': ' + c.raw + '%' }, backgroundColor: 'rgba(10,12,16,0.95)', titleColor: '#e8eaf0', bodyColor: '#8b92a3' } },
+      scales: {
+        y: { min: 0, max: 7, ticks: { callback: v => v + '%', color: '#8b92a3', font: { family: 'DM Mono', size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        x: { ticks: { color: '#8b92a3', font: { size: 11 }, maxRotation: 35 }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderAll() {
+  renderCityGrid();
+  renderCityData();
+  renderYieldChart();
+}
+
+renderAll();
+</script>
+</body>
+</html>

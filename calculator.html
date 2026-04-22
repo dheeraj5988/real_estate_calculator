@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMI Calculator | RE Research 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+.legend-row { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; }
+.legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--text2); }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.chart-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; margin-bottom: 2rem; }
+.chart-wrap h3 { font-family: var(--serif); font-size: 1.3rem; color: var(--text); margin-bottom: 0.4rem; }
+.chart-wrap .chart-sub { font-size: 0.78rem; color: var(--text2); margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">▸ RE Research 2026</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="calculator.html" class="active">Calculator</a></li>
+      <li><a href="invest.html">Invest vs Buy</a></li>
+      <li><a href="markets.html">Markets</a></li>
+      <li><a href="kitchen.html">Cloud Kitchen</a></li>
+    </ul>
+    <button class="theme-toggle" onclick="toggleTheme()">◐ Theme</button>
+  </div>
+</nav>
+
+<main>
+<div class="page-header">
+  <div class="section-tag">02 · Calculator</div>
+  <h1>EMI & LTV<br><em>Reality Checker</em></h1>
+  <p>Most buyers underestimate how much cash they need on day 1. RBI's LTV regulations make the "5L down on a 50L flat" plan mathematically impossible. These calculators show the truth.</p>
+  <a href="index.html" class="city-pill" id="cityPill">📍 Bangalore — click to change</a>
+</div>
+
+<!-- LTV CALCULATOR -->
+<section id="ltv">
+  <div class="section-tag">02A · RBI Rules</div>
+  <h2 class="section-title">LTV Reality Checker</h2>
+  <p class="section-desc">RBI caps how much a bank can lend based on property value. Down payment + stamp duty + registration combined can require 25–30% cash upfront — not 10%.</p>
+
+  <div class="calc-card">
+    <h3>RBI LTV + True Cost Calculator</h3>
+    <p>Adjust property price and loan tenure to see your actual day-1 cash requirement and whether your plan is RBI-compliant.</p>
+    <div class="calc-grid">
+      <div>
+        <div class="input-group">
+          <label>Property Price</label>
+          <input type="range" id="propPrice" min="2000000" max="30000000" step="500000" value="5500000" oninput="calcLTV()">
+          <div class="val-display" id="propPriceDisplay">₹55,00,000</div>
+        </div>
+        <div class="input-group">
+          <label>Your Down Payment Savings</label>
+          <input type="range" id="downPayment" min="200000" max="8000000" step="100000" value="500000" oninput="calcLTV()">
+          <div class="val-display" id="downPaymentDisplay">₹5,00,000</div>
+        </div>
+        <div class="input-group">
+          <label>Loan Tenure (Years)</label>
+          <input type="range" id="tenure" min="5" max="30" step="1" value="15" oninput="calcLTV()">
+          <div class="val-display" id="tenureDisplay">15 Years</div>
+        </div>
+        <div class="input-group">
+          <label>Interest Rate: <span id="rateDisplay">8.5%</span></label>
+          <input type="range" id="interestRate" min="7" max="14" step="0.25" value="8.5" oninput="calcLTV()">
+        </div>
+        <div style="margin-top:1.5rem; overflow-x:auto;">
+          <table>
+            <thead><tr><th>Property Value Slab</th><th>Max LTV (RBI)</th><th>Min Down Payment</th></tr></thead>
+            <tbody>
+              <tr><td>Up to ₹30L</td><td class="good">90%</td><td>10%</td></tr>
+              <tr><td>₹30L – ₹75L</td><td class="warn">80%</td><td>20%</td></tr>
+              <tr><td>Above ₹75L</td><td class="bad">75%</td><td>25%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="results-box">
+          <div class="result-row"><span class="result-label">RBI Max Loan (LTV)</span><span class="result-val warn" id="r-maxloan">—</span></div>
+          <div class="result-row"><span class="result-label">Minimum Down Payment (RBI)</span><span class="result-val" id="r-mindown">—</span></div>
+          <div class="result-row"><span class="result-label">Stamp Duty + Registration</span><span class="result-val bad" id="r-stamp">—</span></div>
+          <div class="result-row"><span class="result-label">Total Cash Needed Day-1</span><span class="result-val bad" id="r-totalcash">—</span></div>
+          <div class="result-row"><span class="result-label">Your Savings Shortfall</span><span class="result-val" id="r-shortfall">—</span></div>
+          <div class="result-row"><span class="result-label">Actual Loan Amount</span><span class="result-val warn" id="r-actualloan">—</span></div>
+          <div class="result-row"><span class="result-label">Monthly EMI</span><span class="result-val bad" id="r-emi">—</span></div>
+          <div class="result-row"><span class="result-label">Total Interest Paid</span><span class="result-val bad" id="r-totalint">—</span></div>
+          <div class="result-row"><span class="result-label">Total Amount Paid</span><span class="result-val" id="r-total">—</span></div>
+        </div>
+        <div id="ltv-alert" class="alert alert-red" style="margin-top:1rem;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AMORTIZATION -->
+<section id="amortization">
+  <div class="section-tag">02B · The 10-Year Illusion</div>
+  <h2 class="section-title">Amortization<br>Reality Curve</h2>
+  <p class="section-desc">Banks front-load interest. In the first 10 years of a 20-year loan, you pay mostly interest — not principal. The "I'll own it in 10 years" belief is mathematically false.</p>
+
+  <div class="chart-wrap">
+    <h3>Where Your EMI Actually Goes — Year by Year</h3>
+    <p class="chart-sub">Stacked bars: Interest (red) vs Principal (teal) per year. Gold line = outstanding balance remaining.</p>
+    <div style="position:relative;height:320px;">
+      <canvas id="amortChart" role="img" aria-label="Stacked bar chart showing interest vs principal paid each year with outstanding balance line">Amortization schedule chart</canvas>
+    </div>
+    <div class="legend-row">
+      <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div> Interest Component</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2dd4bf"></div> Principal Component</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#d4a843"></div> Outstanding Balance</div>
+    </div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-grid">
+      <div>
+        <div class="input-group">
+          <label>Loan Amount</label>
+          <input type="range" id="amLoan" min="1000000" max="20000000" step="500000" value="5000000" oninput="buildAmort()">
+          <div class="val-display" id="amLoanDisplay">₹50,00,000</div>
+        </div>
+        <div class="input-group">
+          <label>Interest Rate: <span id="amRateDisplay">8.5%</span></label>
+          <input type="range" id="amRate" min="7" max="14" step="0.25" value="8.5" oninput="buildAmort()">
+        </div>
+        <div class="input-group">
+          <label>Tenure: <span id="amTenDisplay">15 yrs</span></label>
+          <input type="range" id="amTen" min="5" max="30" step="1" value="15" oninput="buildAmort()">
+        </div>
+      </div>
+      <div class="results-box">
+        <div class="result-row"><span class="result-label">Monthly EMI</span><span class="result-val bad" id="am-emi">—</span></div>
+        <div class="result-row"><span class="result-label">After 10 Years — Total Paid</span><span class="result-val bad" id="am-paid10">—</span></div>
+        <div class="result-row"><span class="result-label">After 10 Years — Interest Paid</span><span class="result-val bad" id="am-int10">—</span></div>
+        <div class="result-row"><span class="result-label">After 10 Years — Principal Paid</span><span class="result-val good" id="am-prin10">—</span></div>
+        <div class="result-row"><span class="result-label">Balance Still Owed (Yr 10)</span><span class="result-val bad" id="am-balance10">—</span></div>
+        <div class="result-row"><span class="result-label">Interest % of First-10yr Payments</span><span class="result-val bad" id="am-intpct">—</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RENT VS BUY -->
+<section id="rentbuy">
+  <div class="section-tag">02C · The EMI Illusion</div>
+  <h2 class="section-title">Rent vs. Buy<br>Break-Even</h2>
+  <p class="section-desc">The "rent = EMI" assumption is mathematically false in India. Home loan rates (8.5%) are 2–3× higher than rental yields (3–6%). This tool shows the actual monthly gap and wealth comparison.</p>
+
+  <div class="calc-card">
+    <div class="calc-grid">
+      <div>
+        <div class="input-group">
+          <label>Current Monthly Rent</label>
+          <input type="range" id="rentAmt" min="5000" max="100000" step="1000" value="30000" oninput="calcRentBuy()">
+          <div class="val-display" id="rentDisplay">₹30,000/mo</div>
+        </div>
+        <div class="input-group">
+          <label>Property Price (if you buy)</label>
+          <input type="range" id="buyPrice" min="2000000" max="20000000" step="500000" value="5500000" oninput="calcRentBuy()">
+          <div class="val-display" id="buyPriceDisplay">₹55,00,000</div>
+        </div>
+        <div class="input-group">
+          <label>Down Payment Available</label>
+          <input type="range" id="buyDown" min="500000" max="8000000" step="100000" value="1000000" oninput="calcRentBuy()">
+          <div class="val-display" id="buyDownDisplay">₹10,00,000</div>
+        </div>
+        <div class="input-group">
+          <label>Property Appreciation (% p.a.): <span id="appDisplay">8%</span></label>
+          <input type="range" id="appRate" min="3" max="15" step="0.5" value="8" oninput="calcRentBuy()">
+        </div>
+        <div class="input-group">
+          <label>Equity Return (% p.a. if investing delta): <span id="eqDisplay">12%</span></label>
+          <input type="range" id="eqRate" min="8" max="18" step="0.5" value="12" oninput="calcRentBuy()">
+        </div>
+      </div>
+      <div>
+        <div class="results-box">
+          <div class="result-row"><span class="result-label">Your Current Rent</span><span class="result-val good" id="rb-rent">—</span></div>
+          <div class="result-row"><span class="result-label">EMI if You Buy</span><span class="result-val bad" id="rb-emi">—</span></div>
+          <div class="result-row"><span class="result-label">Monthly Cash Gap (EMI − Rent)</span><span class="result-val bad" id="rb-gap">—</span></div>
+          <div class="result-row"><span class="result-label">Implied Rental Yield</span><span class="result-val warn" id="rb-yield">—</span></div>
+          <div class="result-row"><span class="result-label">10-Yr Equity (If Gap Invested)</span><span class="result-val good" id="rb-eqwealth">—</span></div>
+          <div class="result-row"><span class="result-label">10-Yr Property Value</span><span class="result-val warn" id="rb-propval">—</span></div>
+          <div class="result-row"><span class="result-label">Outstanding Loan After 10 Yrs</span><span class="result-val bad" id="rb-outstanding">—</span></div>
+          <div class="result-row"><span class="result-label">Net Property Equity (10 Yrs)</span><span class="result-val" id="rb-netequity">—</span></div>
+        </div>
+        <div id="rb-alert" class="alert" style="margin-top:1rem;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">RE Research 2026</div>
+        <p class="footer-tagline">Research & informational use only. Not financial advice.</p>
+        <div class="social-row">
+          <a href="https://github.com/dheeraj5988/" target="_blank" class="social-btn">⌥ GitHub</a>
+          <a href="https://www.linkedin.com/in/dheeraj5988/" target="_blank" class="social-btn">↗ LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h5>Pages</h5>
+        <a href="index.html">Home</a>
+        <a href="calculator.html">EMI Calculator</a>
+        <a href="invest.html">Invest vs Buy</a>
+        <a href="markets.html">Markets</a>
+        <a href="kitchen.html">Cloud Kitchen</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Dheeraj · RE Research</div>
+      <div class="footer-note">Not financial advice.</div>
+    </div>
+  </div>
+</footer>
+
+<script src="citydata.js"></script>
+<script src="shared.js"></script>
+<script>
+// City pill
+const cd = getCityData();
+document.getElementById('cityPill').textContent = '📍 ' + cd.name + ' — click to change';
+document.getElementById('cityPill').href = 'index.html';
+
+// Set city-specific defaults
+document.getElementById('interestRate').value = cd.loanRate;
+document.getElementById('rateDisplay').textContent = cd.loanRate + '%';
+document.getElementById('amRate').value = cd.loanRate;
+document.getElementById('amRateDisplay').textContent = cd.loanRate + '%';
+
+// ─── LTV ───
+function calcLTV() {
+  const price = +document.getElementById('propPrice').value;
+  const down = +document.getElementById('downPayment').value;
+  const yrs = +document.getElementById('tenure').value;
+  const rate = +document.getElementById('interestRate').value;
+  const city = getCityData();
+  const totalDuty = (city.stampDuty + city.registration) / 100;
+
+  document.getElementById('propPriceDisplay').textContent = fmtCr(price);
+  document.getElementById('downPaymentDisplay').textContent = fmtCr(down);
+  document.getElementById('tenureDisplay').textContent = yrs + ' Years';
+  document.getElementById('rateDisplay').textContent = rate + '%';
+
+  let maxLTV, minDownPct;
+  if (price <= 3000000) { maxLTV = 90; minDownPct = 10; }
+  else if (price <= 7500000) { maxLTV = 80; minDownPct = 20; }
+  else { maxLTV = 75; minDownPct = 25; }
+
+  const maxLoan = price * (maxLTV / 100);
+  const minDown = price * (minDownPct / 100);
+  const stamp = price * totalDuty;
+  const totalCash = minDown + stamp;
+  const shortfall = Math.max(0, totalCash - down);
+  const actualLoan = Math.min(maxLoan, price - down);
+  const monthlyEMI = calcEMI(actualLoan, rate, yrs * 12);
+  const totalPaid = monthlyEMI * yrs * 12;
+  const totalInt = totalPaid - actualLoan;
+
+  document.getElementById('r-maxloan').textContent = fmtCr(maxLoan) + ' (' + maxLTV + '% LTV)';
+  document.getElementById('r-mindown').textContent = fmtCr(minDown) + ' (' + minDownPct + '%)';
+  document.getElementById('r-stamp').textContent = fmtCr(stamp) + ' (' + ((city.stampDuty + city.registration).toFixed(1)) + '%)';
+  document.getElementById('r-totalcash').textContent = fmtCr(totalCash);
+  document.getElementById('r-shortfall').textContent = shortfall > 0 ? fmtCr(shortfall) + ' short' : '✓ Sufficient';
+  document.getElementById('r-shortfall').className = 'result-val ' + (shortfall > 0 ? 'bad' : 'good');
+  document.getElementById('r-actualloan').textContent = fmtCr(actualLoan);
+  document.getElementById('r-emi').textContent = fmtCr(monthlyEMI) + '/mo';
+  document.getElementById('r-totalint').textContent = fmtCr(totalInt);
+  document.getElementById('r-total').textContent = fmtCr(totalPaid);
+
+  const alertEl = document.getElementById('ltv-alert');
+  if (down < minDown) {
+    alertEl.className = 'alert alert-red';
+    alertEl.innerHTML = `⚠ Your savings of <strong>${fmtCr(down)}</strong> are below the RBI minimum down payment of <strong>${fmtCr(minDown)}</strong> for a ${fmtCr(price)} property. You need <strong>${fmtCr(shortfall)}</strong> more before stamp duty.`;
+  } else if (down < totalCash) {
+    alertEl.className = 'alert alert-gold';
+    alertEl.innerHTML = `⚠ Down payment OK, but total day-1 cash needed (including stamp duty) is <strong>${fmtCr(totalCash)}</strong>. You're short by <strong>${fmtCr(shortfall)}</strong>.`;
+  } else {
+    alertEl.className = 'alert alert-green';
+    alertEl.innerHTML = `✓ Your savings cover the day-1 requirement of <strong>${fmtCr(totalCash)}</strong>. Monthly EMI: <strong>${fmtCr(monthlyEMI)}/month</strong>. Ensure this is ≤35% of take-home.`;
+  }
+}
+
+// ─── AMORTIZATION ───
+let amortChart;
+function buildAmort() {
+  const loan = +document.getElementById('amLoan').value;
+  const rate = +document.getElementById('amRate').value;
+  const yrs = +document.getElementById('amTen').value;
+
+  document.getElementById('amLoanDisplay').textContent = fmtCr(loan);
+  document.getElementById('amRateDisplay').textContent = rate + '%';
+  document.getElementById('amTenDisplay').textContent = yrs + ' yrs';
+
+  const mr = rate / 12 / 100;
+  const n = yrs * 12;
+  const monthly = calcEMI(loan, rate, n);
+
+  let labels = [], intArr = [], prinArr = [], balArr = [];
+  let bal = loan, totInt10 = 0, totPrin10 = 0, totPaid10 = 0;
+  const displayYrs = Math.min(yrs, 30);
+  for (let yr = 1; yr <= displayYrs; yr++) {
+    let yInt = 0, yPrin = 0;
+    for (let m = 0; m < 12; m++) {
+      const intPart = bal * mr;
+      const prinPart = monthly - intPart;
+      yInt += intPart; yPrin += prinPart; bal -= prinPart;
+    }
+    if (yr <= 10) { totInt10 += yInt; totPrin10 += yPrin; totPaid10 += (yInt + yPrin); }
+    labels.push('Yr ' + yr);
+    intArr.push(Math.round(yInt));
+    prinArr.push(Math.round(yPrin));
+    balArr.push(Math.max(0, Math.round(bal)));
+  }
+
+  document.getElementById('am-emi').textContent = fmtCr(monthly) + '/mo';
+  document.getElementById('am-paid10').textContent = fmtCr(totPaid10);
+  document.getElementById('am-int10').textContent = fmtCr(totInt10);
+  document.getElementById('am-prin10').textContent = fmtCr(totPrin10);
+  const bal10idx = Math.min(9, displayYrs - 1);
+  document.getElementById('am-balance10').textContent = fmtCr(balArr[bal10idx]);
+  document.getElementById('am-intpct').textContent = (totInt10 / totPaid10 * 100).toFixed(1) + '% interest in first 10 yrs';
+
+  if (amortChart) amortChart.destroy();
+  amortChart = new Chart(document.getElementById('amortChart'), {
+    data: {
+      labels,
+      datasets: [
+        { type: 'bar', label: 'Interest Paid', data: intArr, backgroundColor: 'rgba(248,113,113,0.7)', stack: 's' },
+        { type: 'bar', label: 'Principal Paid', data: prinArr, backgroundColor: 'rgba(45,212,191,0.7)', stack: 's' },
+        { type: 'line', label: 'Outstanding Balance', data: balArr, borderColor: '#d4a843', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { stacked: true, ticks: { callback: v => '₹' + (v / 100000).toFixed(0) + 'L', color: '#8b92a3', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y1: { position: 'right', ticks: { callback: v => '₹' + (v / 10000000).toFixed(1) + 'Cr', color: '#d4a843', font: { size: 11 } }, grid: { display: false } },
+        x: { ticks: { color: '#8b92a3', font: { size: 10 } }, grid: { display: false } }
+      },
+      plugins: {
+        legend: { labels: { color: '#8b92a3', font: { family: 'DM Mono', size: 11 }, usePointStyle: true } },
+        tooltip: { backgroundColor: 'rgba(10,12,16,0.95)', titleColor: '#e8eaf0', bodyColor: '#8b92a3', callbacks: { label: ctx => ctx.dataset.label + ': ' + fmtCr(ctx.raw) } }
+      }
+    }
+  });
+}
+
+// ─── RENT VS BUY ───
+function calcRentBuy() {
+  const rent = +document.getElementById('rentAmt').value;
+  const price = +document.getElementById('buyPrice').value;
+  const down = +document.getElementById('buyDown').value;
+  const appR = +document.getElementById('appRate').value;
+  const eqR = +document.getElementById('eqRate').value;
+
+  document.getElementById('rentDisplay').textContent = fmt(rent) + '/mo';
+  document.getElementById('buyPriceDisplay').textContent = fmtCr(price);
+  document.getElementById('buyDownDisplay').textContent = fmtCr(down);
+  document.getElementById('appDisplay').textContent = appR + '%';
+  document.getElementById('eqDisplay').textContent = eqR + '%';
+
+  const loan = price - down;
+  const monthlyEMI = calcEMI(loan, 8.5, 240);
+  const gap = monthlyEMI - rent;
+  const yieldPct = (rent * 12 / price * 100).toFixed(2);
+
+  const propVal10 = fv(price, appR, 10);
+
+  let bal = loan;
+  const mr = 8.5 / 12 / 100;
+  for (let i = 0; i < 120; i++) { const ip = bal * mr; bal -= (monthlyEMI - ip); }
+  const outstanding10 = Math.max(0, bal);
+  const netEquity10 = propVal10 - outstanding10;
+
+  const eqMonthly = Math.max(0, gap);
+  const eqFV = sipFV(eqMonthly, eqR, 120);
+  const eqWealth = eqFV + fv(down, eqR, 10);
+
+  document.getElementById('rb-rent').textContent = fmt(rent) + '/mo';
+  document.getElementById('rb-emi').textContent = fmt(monthlyEMI) + '/mo';
+  document.getElementById('rb-gap').textContent = fmt(gap) + '/mo extra';
+  document.getElementById('rb-yield').textContent = yieldPct + '% (vs 8.5% loan cost)';
+  document.getElementById('rb-eqwealth').textContent = fmtCr(eqWealth);
+  document.getElementById('rb-propval').textContent = fmtCr(propVal10);
+  document.getElementById('rb-outstanding').textContent = fmtCr(outstanding10);
+  document.getElementById('rb-netequity').textContent = fmtCr(netEquity10);
+  document.getElementById('rb-netequity').className = 'result-val ' + (netEquity10 > eqWealth ? 'good' : 'bad');
+
+  const rbAlert = document.getElementById('rb-alert');
+  if (eqWealth > netEquity10) {
+    rbAlert.className = 'alert alert-teal';
+    rbAlert.innerHTML = `Continuing to rent and investing the monthly delta (${fmt(gap)}/mo) + down payment in equity would generate <strong>${fmtCr(eqWealth)}</strong> vs net property equity of <strong>${fmtCr(netEquity10)}</strong> over 10 years. The math favors renting + investing at these assumptions.`;
+  } else {
+    rbAlert.className = 'alert alert-gold';
+    rbAlert.innerHTML = `At these appreciation (${appR}%) and equity return (${eqR}%) assumptions, buying edges ahead on 10-yr net wealth. Verify appreciation assumptions match your specific micro-market.`;
+  }
+}
+
+calcLTV();
+buildAmort();
+calcRentBuy();
+</script>
+</body>
+</html>

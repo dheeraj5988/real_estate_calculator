@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Kitchen | RE Research 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+.chart-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; margin-bottom: 2rem; }
+.chart-wrap h3 { font-family: var(--serif); font-size: 1.3rem; color: var(--text); margin-bottom: 0.4rem; }
+.chart-wrap .chart-sub { font-size: 0.78rem; color: var(--text2); margin-bottom: 1.5rem; }
+
+.mode-toggle { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+.mode-btn {
+  flex: 1; padding: 0.7rem;
+  border-radius: 6px; font-family: var(--mono); font-size: 0.72rem;
+  cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.08em;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text2);
+}
+.mode-btn.lease-active { border-color: var(--teal); background: rgba(45,212,191,0.08); color: var(--teal); }
+.mode-btn.buy-active { border-color: var(--red); background: rgba(248,113,113,0.08); color: var(--red); }
+
+.scenario-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0; }
+.tab-btn-ck {
+  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em;
+  padding: 0.6rem 1.2rem; border: 1px solid var(--border); background: var(--bg2);
+  color: var(--text2); cursor: pointer; border-radius: 4px 4px 0 0; transition: all 0.2s;
+  text-transform: uppercase;
+}
+.tab-btn-ck:hover { color: var(--gold); border-color: var(--gold-dim); }
+.tab-btn-ck.active { background: var(--bg3); border-color: var(--gold); color: var(--gold); border-bottom-color: var(--bg3); }
+.tab-content-ck {
+  background: var(--bg3); border: 1px solid var(--gold);
+  border-radius: 0 6px 6px 6px; padding: 2rem; min-height: 300px; margin-bottom: 2rem;
+}
+.scenario-title { font-family: var(--serif); font-size: 1.4rem; color: var(--text); margin-bottom: 0.4rem; }
+.scenario-desc-txt { font-size: 0.82rem; color: var(--text2); margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+.pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+@media(max-width:600px){ .pros-cons { grid-template-columns: 1fr; } }
+.pros-box, .cons-box { background: var(--bg2); border-radius: 6px; padding: 1.2rem; }
+.pros-box { border-left: 3px solid var(--green); }
+.cons-box { border-left: 3px solid var(--red); }
+.pros-box h4 { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--green); margin-bottom: 0.8rem; }
+.cons-box h4 { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--red); margin-bottom: 0.8rem; }
+.pros-box li, .cons-box li { font-size: 0.8rem; color: var(--text2); margin-bottom: 0.5rem; padding-left: 1.2rem; position: relative; line-height: 1.5; list-style: none; }
+.pros-box li::before { content: '+'; position: absolute; left: 0; color: var(--green); font-weight: bold; }
+.cons-box li::before { content: '−'; position: absolute; left: 0; color: var(--red); }
+.verdict-box { background: rgba(212,168,67,0.05); border: 1px solid var(--gold-dim); border-radius: 6px; padding: 1.2rem; }
+.verdict-box h4 { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--gold); margin-bottom: 0.6rem; }
+.verdict-box p { font-size: 0.82rem; color: var(--text2); line-height: 1.7; }
+
+.breakeven-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 1rem; margin-top: 2rem; }
+.be-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
+.be-val { font-family: var(--mono); font-size: 1.4rem; font-weight: 500; margin-bottom: 0.3rem; }
+.be-lbl { font-size: 0.72rem; color: var(--text2); }
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">▸ RE Research 2026</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="calculator.html">Calculator</a></li>
+      <li><a href="invest.html">Invest vs Buy</a></li>
+      <li><a href="markets.html">Markets</a></li>
+      <li><a href="kitchen.html" class="active">Cloud Kitchen</a></li>
+    </ul>
+    <button class="theme-toggle" onclick="toggleTheme()">◐ Theme</button>
+  </div>
+</nav>
+
+<main>
+<div class="page-header">
+  <div class="section-tag">05 · F&B Analysis</div>
+  <h1>Cloud Kitchen<br><em>P&L Simulator</em></h1>
+  <p>25–30% of cloud kitchens shut within year 1. Aggregator commissions (25–30%) and COGS (30–40%) compress margins ruthlessly. Should you buy or lease commercial space? The numbers tell a clear story.</p>
+</div>
+
+<!-- P&L SIMULATOR -->
+<section id="simulator">
+  <div class="section-tag">05A · Monthly P&L</div>
+  <h2 class="section-title">Live P&L<br>Calculator</h2>
+  <p class="section-desc">Toggle between Lease and Buy mode. Watch how a commercial EMI vs rent changes your margin. The verdict updates automatically.</p>
+
+  <div class="calc-card">
+    <h3>Cloud Kitchen P&L</h3>
+    <p>Adjust all inputs. Toggle between leasing space vs buying commercial property (with EMI replacing rent).</p>
+
+    <div class="calc-grid">
+      <div>
+        <div class="mode-toggle">
+          <button class="mode-btn lease-active" id="btnLease" onclick="setCKMode('lease')">🟢 Lease Mode</button>
+          <button class="mode-btn" id="btnBuy" onclick="setCKMode('buy')">🔴 Buy Mode (EMI)</button>
+        </div>
+
+        <div class="input-group">
+          <label>Monthly Revenue Target</label>
+          <input type="range" id="ckRevenue" min="50000" max="1500000" step="10000" value="300000" oninput="calcCK()">
+          <div class="val-display" id="ckRevDisplay">₹3,00,000/mo</div>
+        </div>
+        <div class="input-group">
+          <label>COGS %: <span id="ckCogsDisplay">35%</span></label>
+          <input type="range" id="ckCogs" min="25" max="50" step="1" value="35" oninput="calcCK()">
+        </div>
+        <div class="input-group">
+          <label>Aggregator Commission %: <span id="ckAggDisplay">28%</span></label>
+          <input type="range" id="ckAgg" min="20" max="35" step="1" value="28" oninput="calcCK()">
+        </div>
+        <div class="input-group">
+          <label>Monthly Marketing Spend</label>
+          <input type="range" id="ckMktg" min="5000" max="100000" step="5000" value="30000" oninput="calcCK()">
+          <div class="val-display" id="ckMktgDisplay">₹30,000</div>
+        </div>
+        <div class="input-group">
+          <label id="ckRentLbl">Monthly Rent: <span id="ckRentDisplay">₹40,000</span></label>
+          <input type="range" id="ckRent" min="10000" max="400000" step="5000" value="40000" oninput="calcCK()">
+        </div>
+        <div class="input-group">
+          <label>Staff / Labour %: <span id="ckLabourDisplay">12%</span></label>
+          <input type="range" id="ckLabour" min="8" max="20" step="1" value="12" oninput="calcCK()">
+        </div>
+      </div>
+
+      <div>
+        <div class="results-box">
+          <div class="result-row"><span class="result-label">Revenue</span><span class="result-val good" id="ck-rev">—</span></div>
+          <div class="result-row"><span class="result-label">COGS</span><span class="result-val bad" id="ck-cogs">—</span></div>
+          <div class="result-row"><span class="result-label">Aggregator Commission</span><span class="result-val bad" id="ck-agg">—</span></div>
+          <div class="result-row"><span class="result-label">Packaging (7%)</span><span class="result-val bad" id="ck-pack">—</span></div>
+          <div class="result-row"><span class="result-label">Marketing</span><span class="result-val bad" id="ck-mktg">—</span></div>
+          <div class="result-row"><span class="result-label">Labour</span><span class="result-val bad" id="ck-labour">—</span></div>
+          <div class="result-row"><span class="result-label" id="ck-rentlbl2">Rent</span><span class="result-val bad" id="ck-rent-val">—</span></div>
+          <div class="result-row" style="border-top:2px solid var(--border);padding-top:0.8rem;margin-top:0.3rem;">
+            <span class="result-label" style="font-weight:600;color:var(--text)">Net Profit / Loss</span>
+            <span class="result-val" id="ck-net">—</span>
+          </div>
+          <div class="result-row"><span class="result-label">Net Margin %</span><span class="result-val" id="ck-margin">—</span></div>
+        </div>
+        <div id="ck-alert" class="alert alert-gold" style="margin-top:1rem;"></div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;">
+      <div>
+        <p style="font-family:var(--mono);font-size:0.72rem;color:var(--text3);margin-bottom:0.8rem;text-transform:uppercase;letter-spacing:0.1em;">Cost breakdown</p>
+        <div style="position:relative;height:240px;">
+          <canvas id="ckDonut" role="img" aria-label="Donut chart showing cost breakdown">P&L donut chart</canvas>
+        </div>
+      </div>
+      <div>
+        <p style="font-family:var(--mono);font-size:0.72rem;color:var(--text3);margin-bottom:0.8rem;text-transform:uppercase;letter-spacing:0.1em;">Revenue to reach breakeven</p>
+        <div style="position:relative;height:240px;">
+          <canvas id="ckBreakeven" role="img" aria-label="Bar chart showing revenue needed to break even">Breakeven chart</canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="breakeven-row" id="beCards"></div>
+  </div>
+</section>
+
+<!-- DECISION SCENARIOS -->
+<section id="scenarios">
+  <div class="section-tag">05B · Decision Analysis</div>
+  <h2 class="section-title">Lease vs Buy —<br>Scenario Breakdown</h2>
+  <p class="section-desc">Three real scenarios analyzed through F&B industry data, commercial property math, and startup risk.</p>
+
+  <div class="scenario-tabs">
+    <button class="tab-btn-ck active" onclick="switchCKTab(0)">New Kitchen: Lease vs Buy</button>
+    <button class="tab-btn-ck" onclick="switchCKTab(1)">Scale to 2nd Location</button>
+    <button class="tab-btn-ck" onclick="switchCKTab(2)">KaaS vs Own Space</button>
+  </div>
+  <div class="tab-content-ck" id="ckTabContent"></div>
+</section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">RE Research 2026</div>
+        <p class="footer-tagline">Research & informational use only. Not financial advice.</p>
+        <div class="social-row">
+          <a href="https://github.com/dheeraj5988/" target="_blank" class="social-btn">⌥ GitHub</a>
+          <a href="https://www.linkedin.com/in/dheeraj5988/" target="_blank" class="social-btn">↗ LinkedIn</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h5>Pages</h5>
+        <a href="index.html">Home</a>
+        <a href="calculator.html">EMI Calculator</a>
+        <a href="invest.html">Invest vs Buy</a>
+        <a href="markets.html">Markets</a>
+        <a href="kitchen.html">Cloud Kitchen</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Dheeraj · RE Research</div>
+      <div class="footer-note">Not financial advice.</div>
+    </div>
+  </div>
+</footer>
+
+<script src="citydata.js"></script>
+<script src="shared.js"></script>
+<script>
+let ckDonut, ckBreakevenChart, ckMode = 'lease';
+
+function setCKMode(m) {
+  ckMode = m;
+  document.getElementById('btnLease').className = 'mode-btn' + (m === 'lease' ? ' lease-active' : '');
+  document.getElementById('btnBuy').className = 'mode-btn' + (m === 'buy' ? ' buy-active' : '');
+  document.getElementById('ckRentLbl').textContent = m === 'lease' ? 'Monthly Rent: ' : 'Commercial EMI: ';
+  document.getElementById('ck-rentlbl2').textContent = m === 'lease' ? 'Rent' : 'Commercial EMI';
+  calcCK();
+}
+
+function calcCK() {
+  const rev = +document.getElementById('ckRevenue').value;
+  const cogsP = +document.getElementById('ckCogs').value;
+  const aggP = +document.getElementById('ckAgg').value;
+  const mktg = +document.getElementById('ckMktg').value;
+  const rent = +document.getElementById('ckRent').value;
+  const labourP = +document.getElementById('ckLabour').value;
+
+  document.getElementById('ckRevDisplay').textContent = fmtCr(rev) + '/mo';
+  document.getElementById('ckCogsDisplay').textContent = cogsP + '%';
+  document.getElementById('ckAggDisplay').textContent = aggP + '%';
+  document.getElementById('ckMktgDisplay').textContent = fmt(mktg);
+  document.getElementById('ckRentDisplay').textContent = fmt(rent);
+  document.getElementById('ckLabourDisplay').textContent = labourP + '%';
+
+  const cogs = rev * cogsP / 100;
+  const agg = rev * aggP / 100;
+  const pack = rev * 0.07;
+  const labour = rev * labourP / 100;
+  const totalCost = cogs + agg + pack + mktg + labour + rent;
+  const net = rev - totalCost;
+  const margin = (net / rev * 100).toFixed(1);
+
+  document.getElementById('ck-rev').textContent = fmtCr(rev);
+  document.getElementById('ck-cogs').textContent = '−' + fmtCr(cogs) + ' (' + cogsP + '%)';
+  document.getElementById('ck-agg').textContent = '−' + fmtCr(agg) + ' (' + aggP + '%)';
+  document.getElementById('ck-pack').textContent = '−' + fmtCr(pack);
+  document.getElementById('ck-mktg').textContent = '−' + fmt(mktg);
+  document.getElementById('ck-labour').textContent = '−' + fmtCr(labour) + ' (' + labourP + '%)';
+  document.getElementById('ck-rent-val').textContent = '−' + fmt(rent);
+  document.getElementById('ck-net').textContent = (net >= 0 ? '+' : '') + fmtCr(net);
+  document.getElementById('ck-net').className = 'result-val ' + (net >= 0 ? 'good' : 'bad');
+  document.getElementById('ck-margin').textContent = margin + '%';
+  document.getElementById('ck-margin').className = 'result-val ' + (net >= 0 ? 'good' : 'bad');
+
+  // Alert
+  const alertEl = document.getElementById('ck-alert');
+  if (ckMode === 'buy') {
+    alertEl.className = 'alert alert-red';
+    alertEl.innerHTML = `⚠ Buy mode: Your EMI of ${fmt(rent)}/mo is a fixed liability regardless of revenue. If revenue drops 20%, you're paying a commercial EMI on a shuttered kitchen with no easy exit. Lease first — prove the model.`;
+  } else if (net >= 0) {
+    alertEl.className = 'alert alert-green';
+    alertEl.innerHTML = `✓ Profitable at ${margin}% margin. Scale revenue and tighten COGS to 30% before considering any property acquisition. Reinvest profits into second dark kitchen location first.`;
+  } else {
+    alertEl.className = 'alert alert-gold';
+    alertEl.innerHTML = `⚠ Loss of ${fmtCr(Math.abs(net))}/mo. Normal in early stage — typical break-even is 6–9 months. Do NOT buy property in this phase. Preserve capital.`;
+  }
+
+  // Breakeven KPIs
+  const fixedCosts = mktg + rent + labour;
+  const variablePct = (cogsP + aggP + 7) / 100;
+  const breakEvenRev = fixedCosts / (1 - variablePct);
+  const roi12 = net > 0 ? ((net * 12) / (rent * 3) * 100).toFixed(0) : '—';
+
+  document.getElementById('beCards').innerHTML = `
+    <div class="be-card"><div class="be-val ${net >= 0 ? 'good' : 'bad'}">${fmtCr(Math.round(breakEvenRev))}</div><div class="be-lbl">Breakeven Revenue/mo</div></div>
+    <div class="be-card"><div class="be-val warn">${((cogsP + aggP + 7) + labourP).toFixed(0)}%</div><div class="be-lbl">Variable Cost Ratio</div></div>
+    <div class="be-card"><div class="be-val ${net >= 0 ? 'good' : 'bad'}">${margin}%</div><div class="be-lbl">Net Margin</div></div>
+    <div class="be-card"><div class="be-val warn">${net > 0 ? roi12 + '%' : 'Negative'}</div><div class="be-lbl">12-Mo ROI on Setup (est.)</div></div>
+  `;
+
+  // Donut
+  if (ckDonut) ckDonut.destroy();
+  const ctx1 = document.getElementById('ckDonut').getContext('2d');
+  ckDonut = new Chart(ctx1, {
+    type: 'doughnut',
+    data: {
+      labels: ['COGS', 'Aggregator', 'Packaging', 'Marketing', 'Labour', 'Rent/EMI', net > 0 ? 'Net Profit' : 'Loss'],
+      datasets: [{
+        data: [Math.round(cogs), Math.round(agg), Math.round(pack), Math.round(mktg), Math.round(labour), Math.round(rent), Math.round(Math.abs(net))],
+        backgroundColor: ['#f87171','#fb923c','#fbbf24','#a78bfa','#60a5fa','#94a3b8', net >= 0 ? '#4ade80' : '#ef4444'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { labels: { color: '#8b92a3', font: { family: 'DM Mono', size: 10 }, boxWidth: 10 }, position: 'right' },
+        tooltip: { backgroundColor: 'rgba(10,12,16,0.95)', callbacks: { label: c => c.label + ': ' + fmtCr(c.raw) } }
+      }
+    }
+  });
+
+  // Breakeven bar
+  const beRevLevels = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map(x => Math.round(breakEvenRev * x));
+  const beNetArr = beRevLevels.map(r => Math.round(r - (r * variablePct) - fixedCosts));
+  if (ckBreakevenChart) ckBreakevenChart.destroy();
+  const ctx2 = document.getElementById('ckBreakeven').getContext('2d');
+  ckBreakevenChart = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: beRevLevels.map(v => fmtCr(v)),
+      datasets: [{
+        label: 'Net P&L',
+        data: beNetArr,
+        backgroundColor: beNetArr.map(v => v >= 0 ? 'rgba(74,222,128,0.6)' : 'rgba(248,113,113,0.6)'),
+        borderRadius: 4, borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(10,12,16,0.95)', callbacks: { label: c => 'Net: ' + fmtCr(c.raw) } } },
+      scales: {
+        y: { ticks: { callback: v => fmtCr(v), color: '#8b92a3', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        x: { ticks: { color: '#8b92a3', font: { size: 9 }, maxRotation: 30 }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ─── SCENARIOS ───
+const ckScenarios = [
+  {
+    title: 'New Kitchen: Lease vs Buy Commercial',
+    desc: 'You want to start your first cloud kitchen. Should you buy a 400–600 sqft commercial unit in a food court / dark kitchen complex, or lease it on a monthly agreement?',
+    pros: ['Lease: Total startup capital ₹5–15L only', 'Lease: Exit in 30–60 days if model fails', 'Lease: No loan servicing during loss-making months', 'Lease: Test 2–3 locations before committing', 'Buy: No rent escalation risk after purchase', 'Buy: Asset value if model succeeds'],
+    cons: ['Lease: Landlord can increase rent or terminate', 'Lease: No equity being built', 'Buy: ₹50L–1.25Cr capital requirement upfront', 'Buy: Commercial LTV 50–60% → ₹30–50L down payment', 'Buy: EMI runs even if kitchen shuts', 'Buy: Illiquid exit — hard to sell commercial units quickly'],
+    verdict: 'Never buy commercial property to start your first cloud kitchen. Lease first. A ₹30–70K/month leased dark kitchen needs only ₹5–15L total startup capital. Prove the model for 12–18 months, achieve >10% margin consistently, then consider property.'
+  },
+  {
+    title: 'Scaling to 2nd Location',
+    desc: 'Your first kitchen is profitable at 12–15% margin for 6+ months. You want to open a second location. Do you lease again, or now buy?',
+    pros: ['Lease 2nd: Fast deployment — 45–60 days to launch', 'Lease 2nd: Capital preserved for operations and inventory', 'Buy 2nd: Bank now sees proven P&L — better loan terms', 'Buy 2nd: Two owned assets if both succeed', 'Buy 2nd: Hedge against rent increases at location 1'],
+    cons: ['Lease 2nd: Ongoing rent expense doubles', 'Buy 2nd: Down payment absorbs growth capital', 'Buy 2nd: Two EMIs if revenue dips = extreme pressure', 'Buy 2nd: Wrong location locked in permanently'],
+    verdict: 'Lease the second location too. Use your profits to fund the expansion. Only when you have 3+ profitable, stable kitchens with 18+ months of consistent margins should you consider converting one leased location to owned property. Sequence: prove → scale → buy.'
+  },
+  {
+    title: 'KaaS (Kitchen-as-a-Service) vs Own Space',
+    desc: 'Providers like Rebel Foods (Faasos), Kitchens@, and Skope offer fully-equipped shared kitchen spaces at ₹15,000–40,000/month with no setup cost. Compare this to leasing raw space.',
+    pros: ['KaaS: Zero setup cost — day 1 operational', 'KaaS: Shared equipment, utilities, food safety compliance handled', 'KaaS: 40% lower capital than raw lease + fit-out', 'KaaS: Scale quickly — add slots without new locations', 'Raw Lease: Full control of kitchen design and hours', 'Raw Lease: Lower per-month cost at scale (>8L revenue)'],
+    cons: ['KaaS: Limited customization — shared with competitors', 'KaaS: Higher per-order cost at very high volumes', 'KaaS: Exit requires notice — cannot sell the "slot"', 'Raw Lease: ₹8–25L setup cost (equipment + fit-out)', 'Raw Lease: 2–3 months to become operational'],
+    verdict: 'Start with KaaS. This is the lowest-risk path to validating product-market fit in the cloud kitchen space. Switch to raw lease when monthly revenue consistently exceeds ₹3–5L (KaaS economics worsen at high volume). Never buy commercial until you are profitable at ₹10L+/month revenue for 12+ consecutive months.'
+  }
+];
+
+function switchCKTab(i) {
+  document.querySelectorAll('.tab-btn-ck').forEach((b, idx) => b.classList.toggle('active', idx === i));
+  const s = ckScenarios[i];
+  document.getElementById('ckTabContent').innerHTML = `
+    <div class="scenario-title">${s.title}</div>
+    <p class="scenario-desc-txt">${s.desc}</p>
+    <div class="pros-cons">
+      <div class="pros-box"><h4>✓ Upsides</h4><ul>${s.pros.map(p => `<li>${p}</li>`).join('')}</ul></div>
+      <div class="cons-box"><h4>✗ Risks</h4><ul>${s.cons.map(c => `<li>${c}</li>`).join('')}</ul></div>
+    </div>
+    <div class="verdict-box"><h4>◈ Research Verdict</h4><p>${s.verdict}</p></div>
+  `;
+}
+
+calcCK();
+switchCKTab(0);
+</script>
+</body>
+</html>
